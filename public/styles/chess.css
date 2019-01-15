@@ -1,0 +1,250 @@
+@font-face
+{
+	font-family: arrow;
+	src: url(../media/fonts/arrows/Arrows.ttf);
+}
+
+*
+{
+    user-select: none;
+}
+html
+{
+    background-image: url(../media/images/wood.jpg);
+}
+body
+{
+    margin: 0;
+	position: relative;
+}
+
+.hide
+{
+	display: none !important;
+}
+
+#whoseTurn
+{
+	padding: 0.1em 0.5em;
+    text-align: center;
+}
+
+#whoseTurn::after
+{
+	font-family: arrow, sans-serif;
+}
+
+#whoseTurn.white::after
+{
+	content: " c";
+}
+#whoseTurn.black::after
+{
+	content: " d";
+}
+
+#gameInfo p
+{
+	text-align: center;
+	margin: 0;
+	border-bottom: solid 1px black;
+}
+
+main
+{
+	position: relative;
+	display: flex;
+	flex-flow: column wrap;
+	align-content: center;
+	justify-content: center;
+	align-items: stretch;
+}
+
+#log
+{
+	position: relative;
+	display: block;
+	font-weight: bold;
+	overflow: auto;
+	border: solid 1vw;
+	border-color: inherit;
+	height: 15em;
+}
+#logTitle
+{
+	padding-left: 0.25em;
+	font-size: 1.6em;
+}
+#log hr
+{
+	border-color: inherit;
+	margin: 0 0 0.5em 0;
+}
+#logEvents
+{
+	padding: 0 0.5em 0.5em 0.5em;
+	border-color: inherit;
+}
+
+#chessBoard
+{
+	position: relative;
+	overflow: hidden;
+	display: block;
+	border: solid 1vw;
+	border-color: inherit;
+	height: 98vw;
+}
+
+#chessDiv
+{
+    position: relative;
+    display: grid;
+	height: 100%;
+	width: 100%;
+    grid-gap: 0;
+    grid-template: repeat(8, 1fr) / repeat(8, 1fr);
+}
+
+#chessDiv > div
+{
+    position: relative;
+	font-size: 1.1em;
+    background-size: 100%;
+    z-index: 0;
+}
+
+#chessDiv div.selectable
+{
+	cursor: pointer;
+}
+
+#chessDiv div.selectable:hover
+{
+	transform: scale(1.1);
+	z-index: 2;
+}
+
+.selected
+{
+    outline: solid 2px red;
+    z-index: 2 !important;
+	background-size: 115%;
+}
+
+#promotionPanel
+{
+	left: 0;
+	right: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	margin: 0 auto;
+	position: absolute;
+	text-align: center;
+	z-index: 3;
+}
+#promotionPanel > #promoHead
+{
+	text-decoration: underline;
+}
+#promotionChoices
+{
+	position: relative;
+	display: inline-grid;
+	grid-gap: 0.5em;
+	grid-template: repeat(2, 4em) / repeat(2, 4em);
+}
+#promotionChoices button
+{
+	position: relative;
+	background-color: inherit;
+	color: inherit;
+	background-size: 100%;
+	font-weight: bold;
+	cursor: pointer;
+	word-break: break-word;
+	word-wrap: break-word;
+}
+
+#gameOver
+{
+	position: absolute;
+	text-align: center;
+	margin: 0 auto;
+	top: 50%;
+	transform: translateY(-50%);
+	left: 0;
+	right: 0;
+	background-color: rgba(160, 160, 160, 0.6);
+	padding-bottom: 1em;
+	z-index: 4;
+}
+
+#mainMenu
+{
+    color:rgb(200, 200, 200);
+    background-color:rgba(40, 40, 40, 0.8);
+    height:100%;
+    width:35%;
+    top:0;
+    left:65%;
+    position:absolute;
+    text-align:center;
+    z-index:2;
+}
+#mainMenu > input[type="button"]
+{
+    background-color: rgb(125, 125, 125);
+    color: rgb(110, 65, 35);
+    position: absolute;
+    left: 3%;
+    height: 6%;
+    font-size: 160%;
+}
+#tips
+{
+    background-color:rgba(225, 225, 225, 0.95);
+    position:absolute;
+    max-width:250px;
+    min-width:220px;
+    z-index:5;
+}
+
+@media all and (min-width: 420px)
+{
+	#chessBoard
+	{
+		margin: auto;
+		border-width: 0.24em;
+		height: 24em;
+		width: 24em;
+	}
+	#log
+	{
+		border-width: 0.24em;
+	}
+}
+
+@media all and (min-width: 768px)
+{
+	main
+	{
+		margin: 0.4em;
+		flex-flow: row nowrap;
+		align-items: normal;
+		align-content: normal;
+		justify-content: space-between;
+	}
+	#log
+	{
+		flex: 1;
+		display: inline-block;
+		height: 24em;
+	}
+	#chessBoard
+	{
+		margin: 0 1em 0 0;
+		vertical-align: top;
+		display: inline-block;
+	}
+}

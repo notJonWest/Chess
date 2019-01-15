@@ -1,0 +1,29 @@
+{
+    "title": "TF2",
+    "ranks": {
+        "pawn": "Pyro",
+        "rook": "Sniper",
+        "knight": "Demoman",
+        "bishop": "Scout",
+        "queen": "Medic",
+        "king": "Heavy"
+    },
+    "teams": {
+        "white": {
+            "name": "RED",
+            "colour": "#b8383b",
+            "bgcolour": "#f39157",
+            "ranks": {}
+        },
+        "black": {
+            "name": "BLU",
+            "colour": "#5885a2",
+            "bgcolour": "#f3a957",
+            "ranks": {
+                "pawn": "Spy",
+                "rook": "Soldier",
+                "bishop": "Engineer"
+            }
+        }
+    }
+}

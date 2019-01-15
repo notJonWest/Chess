@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Processing...</title>
+</head>
+<body>
+    <header>
+        <h2>Creating your custom schema...</h2>
+    </header>
+    <main>
+        <p id="status"></p>
+    </main>
+</body>
+<script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="./js/easySelect.js"></script>
+<script>
+$(() =>
+{
+	let socket = io();
+
+	let qs = decodeQuerystring();
+
+	qs.schema = qs.schema.toLowerCase();
+
+	socket.emit("loaded", qs.schema);
+
+	socket.on("progress", msg =>
+    {
+    	console.log(msg);
+    });
+
+	socket.on("done", schema =>
+    {
+    	socket.emit("done", schema);
+    	window.location.href = "./"; //TODO: Preview here?
+    });
+
+	socket.on("err", err =>
+    {
+    	console.log(err);
+    });
+});
+</script>
+</html>

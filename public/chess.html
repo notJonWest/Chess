@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <title>Chess</title>
+    <link rel="icon" href="./schemas/default/pieces/BlackKnight"/>
+    <link rel="stylesheet" type="text/css" href="./styles/chess.css"/>
+    <style></style> <!-- For custom schema classes -->
+</head>
+<body>
+    <header>
+        <div id="gameInfo">
+            <p id="using" class="hide"></p>
+            <p id="myTeam"></p>
+            <p id="whoseTurn" class="white">White's Turn</p>
+            <p id="wait">Waiting for players</p>
+        </div>
+    </header>
+    <main>
+        <div id="chessBoard">
+            <div id="gameOver" class="hide">
+                <h1>Game Over!</h1>
+                <span><span id="winnerTeam"></span> won the game</span>
+                <!--Make a rematch prompt later-->
+                <form action="./" method="post">
+                    <input type="submit" value="Done"/>
+                </form>
+            </div>
+            <div id="promotionPanel" class="hide">
+                <h3 id="promoHead">Promote your pawn to:</h3>
+                <div id="promotionChoices">
+                    <button id="rookBtn" name="ROOK">Rook</button>
+                    <button id="knightBtn" name="KNIGHT">Knight</button>
+                    <button id="bishopBtn" name="BISHOP">Bishop</button>
+                    <button id="queenBtn" name="QUEEN">Queen</button>
+                </div>
+                <input id="promotingId" type="hidden" name="piece"/>
+            </div>
+            <div id="chessDiv"></div>
+        </div>
+        <div id="log">
+            <span id="logTitle">Log</span>
+            <hr/>
+            <div id="logEvents"></div>
+        </div>
+    </main>
+<footer>
+</footer>
+</body>
+</html>
+<script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/easySelect.js"></script>
+<script src="js/game.js"></script>
+<script src="js/gui.js"></script>

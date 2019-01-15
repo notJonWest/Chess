@@ -1,0 +1,29 @@
+{
+	"title": "default",
+	"teams":
+	{
+		"white":
+		{
+			"name": "White",
+			"colour": "#ffffff",
+			"bgcolour": "#debf83",
+			"ranks": {}
+		},
+		"black":
+		{
+			"name": "Black",
+			"colour": "#000000",
+			"bgcolour": "#9f7119",
+			"ranks": {}
+		}
+	},
+	"ranks":
+	{
+		"pawn": "Pawn",
+		"rook": "Rook",
+		"knight": "Knight",
+		"bishop": "Bishop",
+		"queen": "Queen",
+		"king": "King"
+	}
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <title>New Schema</title>
+    <link rel="icon" href="./schemas/default/pieces/BlackKnight"/>
+    <link rel="stylesheet" type="text/css" href="./styles/style.css"/>
+</head>
+<body>
+    <header>
+        <h2>Create a new schema</h2>
+    </header>
+    <main>
+        <form id="create" action="./creatingSchema.html" method="post" enctype="multipart/form-data">
+            <div id="general" class="team">
+                <h4>General</h4>
+                <p>
+                    <input type="checkbox" id="enforceClarity" checked="checked"/>
+                    <label for="enforceClarity">Enforce clarity</label>
+                </p>
+                <p>
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title"/>
+                    <span class="errorMsg"></span>
+                </p>
+            </div>
+            <p id="submitParagraph">
+                <input type="submit" id="submitSchema" name="submitSchema" value="Create Schema"/>
+            </p>
+            <input type="hidden" name="base" id="schemaBase"/>
+        </form>
+    </main>
+</body>
+<script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+<script src="./js/easySelect.js"></script>
+<script src="./js/colour.js"></script>
+<script src="./js/newSchema.js"></script>
+</html>
