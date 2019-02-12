@@ -2,9 +2,9 @@ $(() =>
 {
 	const FORM = $$("#create");
 
-	let schema =
+	let skin =
 	{
-		"schemas":
+		"skins":
 		[
 
 		],
@@ -14,9 +14,9 @@ $(() =>
 
 	let qs = decodeQuerystring();
 
-	let fetchSchemaList = (cb = (err, list) => {}) =>
+	let fetchSkinList = (cb = (err, list) => {}) =>
 	{
-		fetch(`./schemas`)
+		fetch(`./skins`)
 		.then(res =>
 		{
 			if (!res.ok)
@@ -35,13 +35,13 @@ $(() =>
 		});
 	};
 
-	let fetchSchema = (schemaName, cb = (err, data) => {}) =>
+	let fetchSkin = (skinName, cb = (err, data) => {}) =>
 	{
-		fetch(`./schemas/${schemaName}`)
+		fetch(`./skins/${skinName}`)
 		.then(res =>
 		{
 			if (!res.ok)
-				throw `Cannot find ${schemaName} schema`;
+				throw `Cannot find ${skinName} skin`;
 
 			res.json().then(data =>
 			{
@@ -57,24 +57,24 @@ $(() =>
 		});
 	};
 
-	fetchSchemaList((err, list) =>
+	fetchSkinList((err, list) =>
 	{
 		if (err)
 			console.log(err);
 		else
 		{
-			schema.schemas = list;
-			if (qs.schema !== undefined)
-				if (schema.schemas.includes(qs.schema))
-					schema.base = qs.schema;
+			skin.skins = list;
+			if (qs.skin !== undefined)
+				if (skin.skins.includes(qs.skin))
+					skin.base = qs.skin;
 
-			fetchSchema(schema.base, (err, data) =>
+			fetchSkin(skin.base, (err, data) =>
 			{
 				if (err)
 					console.log(err);
 				else
 				{
-					schema.baseData = data;
+					skin.baseData = data;
 					loadForm();
 				}
 			});
@@ -83,30 +83,30 @@ $(() =>
 
 	let loadForm = () =>
 	{
-		let schemaRank = (_schema, _rank, _team) =>
+		let skinRank = (_skin, _rank, _team) =>
 		{
 			let sRank = "";
 
-			if (_schema.teams[_team] === undefined)
-				sRank = _schema.ranks[_rank];
+			if (_skin.teams[_team] === undefined)
+				sRank = _skin.ranks[_rank];
 			else
-				sRank = _schema.teams[_team].ranks[_rank];
+				sRank = _skin.teams[_team].ranks[_rank];
 
 			if (sRank === undefined)
-				sRank = _schema.ranks[_rank];
+				sRank = _skin.ranks[_rank];
 			return sRank;
 		};
 
-		$$("#schemaBase").value = schema.base;
-		let teams = schema.baseData.teams;
-		let ranks = schema.baseData.ranks;
+		$$("#skinBase").value = skin.base;
+		let teams = skin.baseData.teams;
+		let ranks = skin.baseData.ranks;
 
 		for (let rank in ranks)
 		{
 			$$("#general").insertAdjacentHTML("beforeend", `
 			<p>
-				<label for="${rank}_name">${schemaRank(schema.baseData, rank)} Name:</label>
-				<input class="pieceName ${rank}" type="text" name="${rank}" id="${rank}_name" placeholder="${schemaRank(schema.baseData, rank)}"/>
+				<label for="${rank}_name">${skinRank(skin.baseData, rank)} Name:</label>
+				<input class="pieceName ${rank}" type="text" name="${rank}" id="${rank}_name" placeholder="${skinRank(skin.baseData, rank)}"/>
 				<span class="errorMsg"></span>
 			</p>`);
 		}
@@ -141,7 +141,7 @@ $(() =>
 			{
 				$$(`#${team}_ranks`).insertAdjacentHTML("beforeend", `
 				<p>
-					<input class="pieceName ${rank}" type="text" name="${team}_${rank}" id="${team}_${rank}" placeholder="${schemaRank(schema.baseData, rank, team)}"/>
+					<input class="pieceName ${rank}" type="text" name="${team}_${rank}" id="${team}_${rank}" placeholder="${skinRank(skin.baseData, rank, team)}"/>
 					<label for="${team}_${rank}_image" class="image"></label>
 					<input type="file" accept="image/png" id="${team}_${rank}_image" name="${team}_${rank}_image" class="hide"/>
 					<span class="errorMsg"></span>
@@ -206,7 +206,7 @@ $(() =>
 			e.preventDefault();
 			if (validate())
 			{
-				FORM.action += `?schema=${$$("#title").value.trim()}`;
+				FORM.action += `?skin=${$$("#title").value.trim()}`;
 				FORM.submit();
 			}
 		});
@@ -220,7 +220,7 @@ $(() =>
 		let title = $$("#title").value.trim().toLowerCase();
 
 		if (title.length > 0)
-			if (!schema.schemas.includes(title))
+			if (!skin.skins.includes(title))
 				if ((/^[a-z0-9_\-]+$/).test(title))
 					valid = true;
 				else
@@ -228,7 +228,7 @@ $(() =>
 			else
 				$$("#title~span.errorMsg").innerHTML = "That title is already taken. Choose another.";
 		else
-			$$("#title~span.errorMsg").innerHTML = "Please provide a title for your schema.";
+			$$("#title~span.errorMsg").innerHTML = "Please provide a title for your skin.";
 
 		return valid;
 	};
@@ -236,7 +236,7 @@ $(() =>
 	let validateImages = () =>
 	{
 		let valid = true;
-		for (let team in schema.baseData.teams)
+		for (let team in skin.baseData.teams)
 		{
 			for (let input of [...$$All(`#${team} .rank input[type='file']`)])
 				if (input.files.length === 0)
@@ -305,7 +305,7 @@ $(() =>
 
 		let nameArr = [];
 
-		for (let team in schema.baseData.teams)
+		for (let team in skin.baseData.teams)
 			nameArr.push($$(`#${team}_name`));
 
 		if (nameArr[0].value.trim().length === 0 || nameArr[1].value.trim().length === 0)
@@ -338,7 +338,7 @@ $(() =>
 	{
 		let valid = true;
 		let teamRankNames = [];
-		for (let team in schema.baseData.teams)
+		for (let team in skin.baseData.teams)
 		{
 			teamRankNames[team] = {};
 			let rankNames = [...$$All(`#${team} .pieceName`)];
@@ -357,7 +357,7 @@ $(() =>
 			}
 		}
 
-		let teams = Object.keys(schema.baseData.teams);
+		let teams = Object.keys(skin.baseData.teams);
 		let ranks = [null, null];
 		for (ranks[0] in teamRankNames[teams[0]])
 		{
@@ -384,7 +384,7 @@ $(() =>
 	{
 		let valid = true;
 
-		for (let piece in schema.baseData.ranks)
+		for (let piece in skin.baseData.ranks)
 		{
 			let name = $$(`#${piece}_name`);
 			let wName = $$(`#white_${piece}`);

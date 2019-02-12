@@ -13,6 +13,7 @@ const EVEM = new EventEmitter();
 const DEFAULT_FILE = "index.html";
 const ROOTDIR = "./public";
 const ERRDIR = "./private/errorpages";
+const SKIN_FILE = "./private/skins/skins.json";
 
 const extToMIME = {
 	".css": "text/css",
@@ -105,10 +106,10 @@ let server = http.createServer((req, res) =>
 	if (filePath.ext === '')
 		if (filePath.base === "chess")
 			newUrlPath(ROOTDIR, `chess.html`);
-		else if (urlObj.pathname.substr(1, 7) === "schemas")
+		else if (urlObj.pathname.substr(1, 7) === "skins")
 		{
 			let ext = ".json";
-			let jsonFileName = `/${filePath.name}`; //Each schema has a corresponding json file of the same name within its directory
+			let jsonFileName = `/${filePath.name}`; //Each skin has a corresponding json file of the same name within its directory
 			if (filePath.dir.slice(-6) === "pieces") //If dir is pieces
 			{
 				ext = ".png"; //Only png images are accepted as piece images
@@ -123,84 +124,84 @@ let server = http.createServer((req, res) =>
 	{
 		if (req.method === "POST")
 		{
-			if (filePath.name === "creatingSchema")
+			if (filePath.name === "creatingSkin")
 			{
 				let form = new formidable.IncomingForm();
-				form.parse(req, (err, schemaData, files) =>
+				form.parse(req, (err, skinData, files) =>
 				{
-					fs.readFile(`./private/schemas/${schemaData.base}/${schemaData.base}.json`,
+					fs.readFile(`./private/skins/${skinData.base}/${skinData.base}.json`,
 					(err, data) =>
 					{
 						if (err)
 							throw err;
 
-						let baseSchema = JSON.parse(data);
-						let newSchema =
+						let baseSkin = JSON.parse(data);
+						let newSkin =
 						{
-							"title": schemaData.title,
+							"title": skinData.title,
 							"ranks": {},
 							"teams": {},
 						};
 
-						schemaData.title = schemaData.title.toLowerCase();
+						skinData.title = skinData.title.toLowerCase();
 
-						schemasInProcess.processing.push(schemaData.title);
+						skinsInProcess.processing.push(skinData.title);
 						readFile();
 
-						let teams = baseSchema.teams;
-						let ranks = baseSchema.ranks;
+						let teams = baseSkin.teams;
+						let ranks = baseSkin.ranks;
 
 						for (let rank in ranks)
-							if (schemaData[rank] !== "")
-								newSchema.ranks[rank] = schemaData[rank];
+							if (skinData[rank] !== "")
+								newSkin.ranks[rank] = skinData[rank];
 
 						for (let team in teams)
 						{
-							newSchema.teams[team] =
+							newSkin.teams[team] =
 							{
-								"name": schemaData[`${team}_name`],
-								"colour": schemaData[`${team}_colour`],
-								"bgcolour": schemaData[`${team}_bgcolour`],
+								"name": skinData[`${team}_name`],
+								"colour": skinData[`${team}_colour`],
+								"bgcolour": skinData[`${team}_bgcolour`],
 								"ranks": {}
 							};
 
 							for (let rank in ranks)
-								if (schemaData[`${team}_${rank}`] !== "")
-									if (newSchema.ranks[rank] === undefined) //If general rank name has not been filled, fill it
-										newSchema.ranks[rank] = schemaData[`${team}_${rank}`];
+								if (skinData[`${team}_${rank}`] !== "")
+									if (newSkin.ranks[rank] === undefined) //If general rank name has not been filled, fill it
+										newSkin.ranks[rank] = skinData[`${team}_${rank}`];
 									else
-										newSchema.teams[team].ranks[rank] = schemaData[`${team}_${rank}`];
+										newSkin.teams[team].ranks[rank] = skinData[`${team}_${rank}`];
 						}
 
 
 						EVEM.emit("progress", "Processed meta-data");
 
-						fs.readFile("./private/schemas/schemas.json", (err, data) =>
+						fs.readFile(SKIN_FILE, (err, data) =>
 						{
 							if (err)
 								throw err;
 
-							let schemas = JSON.parse(data);
-							schemas.push(schemaData.title);
+							let skins = JSON.parse(data);
+							skins.push(skinData.title);
 
-							let schemaPath = `./private/schemas/${schemaData.title}`;
+							let skinPath = `./private/skins/${skinData.title}`;
 
-							fs.mkdir(schemaPath, err =>
+							fs.mkdir(skinPath, err =>
 							{
 								if (err)
 									throw err;
 
-                                fs.writeFile(`${schemaPath}/${schemaData.title}.json`, JSON.stringify(newSchema, null, 4),
+                                fs.writeFile(`${skinPath}/${skinData.title}.json`, JSON.stringify(newSkin, null, 4),
                                     err =>
                                     {
-                                        EVEM.emit("progress", "Saved schema meta-data to database");
-                                        fs.writeFile("./private/schemas/schemas.json", JSON.stringify(schemas, null, 4),
+                                        EVEM.emit("progress", "Saved skin meta-data to database");
+                                        fs.writeFile(SKIN_FILE, JSON.stringify(skins, null, 4),
                                             err =>
                                             {
                                                 if (err)
                                                     throw err;
 
-                                                EVEM.emit("progress", "Added schema title to database");
+                                                EVEM.emit("progress", "Added skin title to database");
                                                 let formNameToFileName = formName =>
                                                 {
                                                     /*
@@ -208,15 +209,15 @@ let server = http.createServer((req, res) =>
                                                      */
                                                     let formNameArr = formName.split("_");
                                                     let team = formNameArr[0];
-                                                    let fileName = newSchema.teams[team].name;
+                                                    let fileName = newSkin.teams[team].name;
 
                                                     //remove team letter and trailing "Img" to get rank
                                                     let chessRank = formNameArr[1];
 
-                                                    //Change rank to the name in schema
-                                                    let rank = newSchema.teams[team].ranks[chessRank];
+                                                    //Change rank to the name in skin
+                                                    let rank = newSkin.teams[team].ranks[chessRank];
                                                     if (rank === undefined)
-                                                        rank = newSchema.ranks[chessRank];
+                                                        rank = newSkin.ranks[chessRank];
                                                     fileName += rank;
 
                                                     //Add extension
@@ -278,17 +279,17 @@ let server = http.createServer((req, res) =>
                                                         onDone();
                                                 };
 
-                                                uploadFiles(Object.keys(files), `./private/schemas/${schemaData.title}/pieces`,
+                                                uploadFiles(Object.keys(files), `${skinPath}/pieces`,
                                                     err =>
                                                     {
-                                                        schemasInProcess.processing.splice(schemasInProcess.processing.indexOf(schemaData.title), 1);
+                                                        skinsInProcess.processing.splice(skinsInProcess.processing.indexOf(skinData.title), 1);
                                                         if (err)
                                                             console.log(err);
                                                         else
                                                         {
-                                                            schemasInProcess.done.push(schemaData.title);
+                                                            skinsInProcess.done.push(skinData.title);
                                                             EVEM.emit("progress", "Uploaded all files");
-                                                            EVEM.emit("done", schemaData.title);
+                                                            EVEM.emit("done", skinData.title);
                                                         }
                                                     },
                                                     (err, fld, next) =>
@@ -304,7 +305,7 @@ let server = http.createServer((req, res) =>
 						});
 					});
 				});
-			} //creatingSchema
+			} //creatingSkin
 			else
 				readFile();
 		} //POST
@@ -388,7 +389,7 @@ let getTeam = id =>
 	return undefined;
 };
 
-let schemasInProcess =
+let skinsInProcess =
 {
 	"processing": [],
 	"done": []
@@ -530,29 +531,29 @@ io.on("connection", socket => {
 			console.log("User disconnected");
 		});
 	}
-	else if (socketPage === "creatingSchema.html")
+	else if (socketPage === "creatingSkin.html")
 	{
-		//TODO: handle multi-user (Make sure 2 users writing for the same schema title don't overwrite each other)
-		socket.on("loaded", createdSchema =>
+		//TODO: handle multi-user (Make sure 2 users writing for the same skin title don't overwrite each other)
+		socket.on("loaded", createdSkin =>
 		{
-			if (schemasInProcess.processing.includes(createdSchema))
-				EVEM.emit("progress", "Schema creation is in mid process");
-			else if (schemasInProcess.done.includes(createdSchema))
-				EVEM.emit("done", createdSchema);
+			if (skinsInProcess.processing.includes(createdSkin))
+				EVEM.emit("progress", "Skin creation is in mid process");
+			else if (skinsInProcess.done.includes(createdSkin))
+				EVEM.emit("done", createdSkin);
 			else
-				socket.emit("err", "An unexpected error occurred. Your schema was not in the process list.");
+				socket.emit("err", "An unexpected error occurred. Your skin was not in the process list.");
 		});
-		socket.on("done", schema =>
+		socket.on("done", skin =>
 		{
-			schemasInProcess.done.splice(schemasInProcess.done.indexOf(schema), 1);
+			skinsInProcess.done.splice(skinsInProcess.done.indexOf(skin), 1);
 		});
 		EVEM.on("progress", msg =>
 		{
 			socket.emit("progress", msg);
 		});
-		EVEM.on("done", schema =>
+		EVEM.on("done", skin =>
 		{
-			socket.emit("done", schema);
+			socket.emit("done", skin);
 		});
 	}
 });

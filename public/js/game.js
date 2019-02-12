@@ -3,70 +3,70 @@ $(()=>
 {
 	let socket = io();
 	let using = "default";
-	let schema = null;
+	let skin = null;
 
-	let fetchSchema = (schemaName, cb) =>
+	let fetchSkin = (skinName, cb) =>
 	{
-		schemaName = schemaName.toLowerCase();
+		skinName = skinName.toLowerCase();
 
-		fetch(`./schemas/${schemaName}`)
+		fetch(`./skins/${skinName}`)
 		.then(res =>
 		{
 			if (!res.ok)
-				throw `Cannot find ${schemaName} schema`;
+				throw `Cannot find ${skinName} skin`;
 
 			res.json().then(data =>
 			{
 				cb({
-					"name": schemaName,
-					"schema": data
+					"name": skinName,
+					"skin": data
 				});
 			}).catch(() =>
 			{
-				if (schemaName === "default")
+				if (skinName === "default")
 				{
 					//fatal error
-					console.error("Could not find a schema to fall back on");
+					console.error("Could not find a skin to fall back on");
 				}
 				else
 				{
-					localStorage.removeItem("schema");
-					fetchSchema("default", cb);
+					localStorage.removeItem("skin");
+					fetchSkin("default", cb);
 				}
 			});
 		})
 		 .catch(() =>
 		{
-			if (schemaName === "default")
+			if (skinName === "default")
 			{
 				//fatal error
-				console.error("Could not find a schema to fall back on");
+				console.error("Could not find a skin to fall back on");
 			}
 			else
 			{
-				localStorage.removeItem("schema");
-				fetchSchema("default", cb);
+				localStorage.removeItem("skin");
+				fetchSkin("default", cb);
 			}
 		});
 	};
 
 	let qs = decodeQuerystring();
-	if (qs.schema !== undefined)
-		localStorage.setItem("schema", qs.schema);
-	else if (localStorage.getItem("schema") === null)
-		localStorage.setItem("schema", "default");
+	if (qs.skin !== undefined)
+		localStorage.setItem("skin", qs.skin);
+	else if (localStorage.getItem("skin") === null)
+		localStorage.setItem("skin", "default");
 
-	fetchSchema(localStorage.getItem("schema"), data =>
+	fetchSkin(localStorage.getItem("skin"), data =>
 	{
 		using = data.name;
-		schema = data.schema;
+		skin = data.skin;
 		loadPage();
 	});
 
 
     socket.on("assignTeam", team =>
     {
-        $$("#myTeam").innerHTML = `You are on the ${schema.teams[team].name} side.`;
+        $$("#myTeam").innerHTML = `You are on the ${skin.teams[team].name} side.`;
         $$("#gameInfo").classList.add(team.toLowerCase());
         $$("#logTitle").classList.add(team.toLowerCase());
         console.log(team);
@@ -74,22 +74,22 @@ $(()=>
 
     socket.on("promote", piece =>
     {
-    	piece = toSchema(piece);
-        $$(`#${piece.location}`).style.backgroundImage = `url(./schemas/${using}/pieces/${piece.team}${piece.rank})`;
+    	piece = toSkin(piece);
+        $$(`#${piece.location}`).style.backgroundImage = `url(./skins/${using}/pieces/${piece.team}${piece.rank})`;
         log.add(`@0*team* promoted *id* to *rank*&`, piece);
     });
 
     socket.on("promotePrompt", piece =>
 	{
-		piece = toSchema(piece);
+		piece = toSkin(piece);
 		$$("#promotingId").value = piece.id;
 		$$("#promotionPanel").classList.remove("hide");
 		$$("#promotionPanel").classList.add(piece.keys.team.toLowerCase());
 
 		for (let btn of [...$$All("#promotionChoices > button")])
 		{
-			btn.style.backgroundImage = `url(./schemas/${using}/pieces/${piece.team}${schemaRank(piece.keys.team, btn.name)}`;
-			btn.innerHTML = schemaRank(piece.keys.team, btn.name);
+			btn.style.backgroundImage = `url(./skins/${using}/pieces/${piece.team}${skinRank(piece.keys.team, btn.name)}`;
+			btn.innerHTML = skinRank(piece.keys.team, btn.name);
 		}
 	});
 
@@ -97,17 +97,17 @@ $(()=>
     {
         if (result.canMove)
         {
-			result.piece = toSchema(result.piece);
+			result.piece = toSkin(result.piece);
 			let logPieces = [result.piece];
 			if (result.captured !== undefined)
 			{
-				result.captured = toSchema(result.captured);
+				result.captured = toSkin(result.captured);
 				logPieces.push(result.captured);
 			}
             log.add(result.logMsg, ...logPieces);
 
 			$$(`#${result.from}`).style.backgroundImage = "none";
-            $$(`#${result.to}`).style.backgroundImage = `url(./schemas/${using}/pieces/${result.piece.team}${result.piece.rank})`;
+            $$(`#${result.to}`).style.backgroundImage = `url(./skins/${using}/pieces/${result.piece.team}${result.piece.rank})`;
 
             if (result.promotion)
 				log.add(`@0*team* is choosing a promotion for *name*&`, result.piece);
@@ -160,28 +160,28 @@ $(()=>
 
     socket.on("gameOver", winner =>
 	{
-		$$("#winnerTeam").innerHTML = schema.teams[winner].name;
+		$$("#winnerTeam").innerHTML = skin.teams[winner].name;
 		$$("#gameOver").classList.add(winner.toLowerCase());
 		$$("#gameOver").classList.remove("hide");
 	});
 
-	let schemaRank = (team, rank) =>
+	let skinRank = (team, rank) =>
 	{
-		let sRank = schema.teams[team].ranks[rank];
+		let sRank = skin.teams[team].ranks[rank];
 		if (sRank === undefined)
-			sRank = schema.ranks[rank];
-		console.log(schema, team, rank);
+			sRank = skin.ranks[rank];
+		console.log(skin, team, rank);
 		return sRank;
 	};
-    let toSchema = piece =>
+    let toSkin = piece =>
 	{
 		piece.keys =
 		{
 			"team": piece.team,
 			"rank": piece.rank
 		};
-		piece.rank = schemaRank(piece.team, piece.rank);
-		piece.team = schema.teams[piece.team].name;
+		piece.rank = skinRank(piece.team, piece.rank);
+		piece.team = skin.teams[piece.team].name;
 		piece.name = `${piece.team}'s ${(piece.promoted?"promoted ":"")}${piece.rank}`;
 
 		return piece;
@@ -192,126 +192,126 @@ $(()=>
 		$$("style").innerHTML = `		
 		#gameInfo.white p
 		{
-			color: ${schema.teams.white.colour};
-			background-color: ${schema.teams.white.bgcolour};
+			color: ${skin.teams.white.colour};
+			background-color: ${skin.teams.white.bgcolour};
 		}
 		#gameInfo.black p
 		{
-			color: ${schema.teams.black.colour};
-			background-color: ${schema.teams.black.bgcolour};
+			color: ${skin.teams.black.colour};
+			background-color: ${skin.teams.black.bgcolour};
 		}
 		
 		#whoseTurn.white
 		{
-			color: ${schema.teams.white.colour} !important;
-			background-color: ${schema.teams.white.bgcolour} !important;
+			color: ${skin.teams.white.colour} !important;
+			background-color: ${skin.teams.white.bgcolour} !important;
 		}
 		#whoseTurn.black
 		{
-			color: ${schema.teams.black.colour} !important;
-			background-color: ${schema.teams.black.bgcolour} !important;
+			color: ${skin.teams.black.colour} !important;
+			background-color: ${skin.teams.black.bgcolour} !important;
 		}
 		
 		main
 		{
-			border-color: ${schema.teams.white.bgcolour};
+			border-color: ${skin.teams.white.bgcolour};
 		}
 		#chessDiv div.white
 		{
-			color: ${schema.teams.black.bgcolour};
+			color: ${skin.teams.black.bgcolour};
 			text-shadow:
-				1px 1px 0 ${schema.teams.black.colour},
-				1px -1px 0 ${schema.teams.black.colour},
-				-1px 1px 0 ${schema.teams.black.colour},
-				-1px -1px 0 ${schema.teams.black.colour};
-			background-color: ${schema.teams.white.bgcolour};
+				1px 1px 0 ${skin.teams.black.colour},
+				1px -1px 0 ${skin.teams.black.colour},
+				-1px 1px 0 ${skin.teams.black.colour},
+				-1px -1px 0 ${skin.teams.black.colour};
+			background-color: ${skin.teams.white.bgcolour};
 		}
 		#chessDiv div.black
 		{
-			color: ${schema.teams.white.bgcolour};
+			color: ${skin.teams.white.bgcolour};
 			text-shadow:
-				1px 1px 0 ${schema.teams.white.colour},
-				1px -1px 0 ${schema.teams.white.colour},
-				-1px 1px 0 ${schema.teams.white.colour},
-				-1px -1px 0 ${schema.teams.white.colour};
-			background-color: ${schema.teams.black.bgcolour};
+				1px 1px 0 ${skin.teams.white.colour},
+				1px -1px 0 ${skin.teams.white.colour},
+				-1px 1px 0 ${skin.teams.white.colour},
+				-1px -1px 0 ${skin.teams.white.colour};
+			background-color: ${skin.teams.black.bgcolour};
 		}
 		
 		#promotionPanel.white
 		{
-			color: ${schema.teams.white.colour};
+			color: ${skin.teams.white.colour};
 			text-shadow:
-				1px 1px 0 ${schema.teams.white.bgcolour},
-				1px -1px 0 ${schema.teams.white.bgcolour},
-				-1px 1px 0 ${schema.teams.white.bgcolour},
-				-1px -1px 0 ${schema.teams.white.bgcolour};
+				1px 1px 0 ${skin.teams.white.bgcolour},
+				1px -1px 0 ${skin.teams.white.bgcolour},
+				-1px 1px 0 ${skin.teams.white.bgcolour},
+				-1px -1px 0 ${skin.teams.white.bgcolour};
 		}
 		#promotionPanel.black
 		{
-			color: ${schema.teams.black.colour};
+			color: ${skin.teams.black.colour};
 			text-shadow:
-				1px 1px 0 ${schema.teams.black.bgcolour},
-				1px -1px 0 ${schema.teams.black.bgcolour},
-				-1px 1px 0 ${schema.teams.black.bgcolour},
-				-1px -1px 0 ${schema.teams.black.bgcolour};
+				1px 1px 0 ${skin.teams.black.bgcolour},
+				1px -1px 0 ${skin.teams.black.bgcolour},
+				-1px 1px 0 ${skin.teams.black.bgcolour},
+				-1px -1px 0 ${skin.teams.black.bgcolour};
 		}
 
 		#promotionPanel.white button
 		{
-			color: ${schema.teams.white.colour};
+			color: ${skin.teams.white.colour};
 			text-shadow:
-				1px 1px 0 ${schema.teams.white.bgcolour},
-				1px -1px 0 ${schema.teams.white.bgcolour},
-				-1px 1px 0 ${schema.teams.white.bgcolour},
-				-1px -1px 0 ${schema.teams.white.bgcolour};
-			background-color: ${schema.teams.black.bgcolour};
+				1px 1px 0 ${skin.teams.white.bgcolour},
+				1px -1px 0 ${skin.teams.white.bgcolour},
+				-1px 1px 0 ${skin.teams.white.bgcolour},
+				-1px -1px 0 ${skin.teams.white.bgcolour};
+			background-color: ${skin.teams.black.bgcolour};
 		}
 		#promotionPanel.black button
 		{
-			color: ${schema.teams.black.colour};
+			color: ${skin.teams.black.colour};
 			text-shadow:
-				1px 1px 0 ${schema.teams.black.bgcolour},
-				1px -1px 0 ${schema.teams.black.bgcolour},
-				-1px 1px 0 ${schema.teams.black.bgcolour},
-				-1px -1px 0 ${schema.teams.black.bgcolour};
-			background-color: ${schema.teams.white.bgcolour};
+				1px 1px 0 ${skin.teams.black.bgcolour},
+				1px -1px 0 ${skin.teams.black.bgcolour},
+				-1px 1px 0 ${skin.teams.black.bgcolour},
+				-1px -1px 0 ${skin.teams.black.bgcolour};
+			background-color: ${skin.teams.white.bgcolour};
 		}
 		#log span.white
 		{
-			color: ${schema.teams.white.colour};
+			color: ${skin.teams.white.colour};
 			text-shadow:
-				1px 1px 0 ${schema.teams.white.bgcolour},
-				1px -1px 0 ${schema.teams.white.bgcolour},
-				-1px 1px 0 ${schema.teams.white.bgcolour},
-				-1px -1px 0 ${schema.teams.white.bgcolour};
+				1px 1px 0 ${skin.teams.white.bgcolour},
+				1px -1px 0 ${skin.teams.white.bgcolour},
+				-1px 1px 0 ${skin.teams.white.bgcolour},
+				-1px -1px 0 ${skin.teams.white.bgcolour};
 		}
 		#log span.black
 		{
-			color: ${schema.teams.black.colour};
+			color: ${skin.teams.black.colour};
 			text-shadow:
-				1px 1px 0 ${schema.teams.black.bgcolour},
-				1px -1px 0 ${schema.teams.black.bgcolour},
-				-1px 1px 0 ${schema.teams.black.bgcolour},
-				-1px -1px 0 ${schema.teams.black.bgcolour};
+				1px 1px 0 ${skin.teams.black.bgcolour},
+				1px -1px 0 ${skin.teams.black.bgcolour},
+				-1px 1px 0 ${skin.teams.black.bgcolour},
+				-1px -1px 0 ${skin.teams.black.bgcolour};
 		}
 		
 		#gameOver.white
 		{
-			color: ${schema.teams.white.colour};
+			color: ${skin.teams.white.colour};
 			text-shadow:
-				1px 1px 0 ${schema.teams.white.bgcolour},
-				1px -1px 0 ${schema.teams.white.bgcolour},
-				-1px 1px 0 ${schema.teams.white.bgcolour},
-				-1px -1px 0 ${schema.teams.white.bgcolour};
+				1px 1px 0 ${skin.teams.white.bgcolour},
+				1px -1px 0 ${skin.teams.white.bgcolour},
+				-1px 1px 0 ${skin.teams.white.bgcolour},
+				-1px -1px 0 ${skin.teams.white.bgcolour};
 		}
 		#gameOver.black
 		{
-			color: ${schema.teams.black.colour};
+			color: ${skin.teams.black.colour};
 			text-shadow:
-				1px 1px 0 ${schema.teams.black.bgcolour},
-				1px -1px 0 ${schema.teams.black.bgcolour},
-				-1px 1px 0 ${schema.teams.black.bgcolour},
-				-1px -1px 0 ${schema.teams.black.bgcolour};
+				1px 1px 0 ${skin.teams.black.bgcolour},
+				1px -1px 0 ${skin.teams.black.bgcolour},
+				-1px 1px 0 ${skin.teams.black.bgcolour},
+				-1px -1px 0 ${skin.teams.black.bgcolour};
 		}`;
 
 		for (let y = 1; y <= 8; y++)
@@ -328,7 +328,7 @@ $(()=>
 			}
 		}
 
-		$$("#using").innerHTML = `Using ${schema.title}`;
+		$$("#using").innerHTML = `Using ${skin.title}`;
 		if (using !== "default")
 			$$("#using").classList.remove("hide");
 
@@ -359,10 +359,10 @@ $(()=>
 		refreshSelectable();
 		for (let piece of pieces)
 		{
-			piece = toSchema(piece);
+			piece = toSkin(piece);
 			if (!piece.taken)
 				$$(`#${piece.location}`).style.backgroundImage =
-					`url(./schemas/${using}/pieces/${piece.team}${piece.rank})`;
+					`url(./skins/${using}/pieces/${piece.team}${piece.rank})`;
 		}
 	};
 
@@ -470,7 +470,7 @@ $(()=>
 			default:
 				throw `Expected "black" or "white", but got "${turn}"`;
 		}
-		$$("#whoseTurn").innerHTML = `${schema.teams[turn].name}'s Turn`;
+		$$("#whoseTurn").innerHTML = `${skin.teams[turn].name}'s Turn`;
 		clearSelected();
 		refreshSelectable();
 	};

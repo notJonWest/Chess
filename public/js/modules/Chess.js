@@ -1,6 +1,6 @@
 "use strict";
 //TODO: Switch to algebraic notation (Coordinates are like e6 instead of c5r6)
-//TODO: Perhaps make the coordinates as part of schemas. Remain with cXrY natively.
+//TODO: Perhaps make the coordinates as part of skins. Remain with cXrY natively.
 //TODO: pawnMath is weird... find an alternative
 let Chess =
 {

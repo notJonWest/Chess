@@ -6,7 +6,7 @@
 </head>
 <body>
     <header>
-        <h2>Creating your custom schema...</h2>
+        <h2>Creating your custom skin...</h2>
     </header>
     <main>
         <p id="status"></p>
@@ -25,18 +25,18 @@ $(() =>
 
 	let qs = decodeQuerystring();
 
-	qs.schema = qs.schema.toLowerCase();
+	qs.skin = qs.skin.toLowerCase();
 
-	socket.emit("loaded", qs.schema);
+	socket.emit("loaded", qs.skin);
 
 	socket.on("progress", msg =>
     {
     	console.log(msg);
     });
 
-	socket.on("done", schema =>
+	socket.on("done", skin =>
     {
-    	socket.emit("done", schema);
+    	socket.emit("done", skin);
     	window.location.href = "./"; //TODO: Preview here?
     });
 
