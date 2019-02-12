@@ -1,4 +1,3 @@
-let g;
 $(() =>
 {
 	const FORM = $$("#create");
@@ -203,6 +202,7 @@ $(() =>
 		});
 		FORM.addEventListener("submit", e =>
 		{
+			console.log("t");
 			e.preventDefault();
 			if (validate())
 			{
@@ -382,7 +382,7 @@ $(() =>
 
 	let checkNames = () =>
 	{
-		let valid = false;
+		let valid = true;
 
 		for (let piece in schema.baseData.ranks)
 		{
@@ -433,6 +433,8 @@ $(() =>
 		let validColours = validateColourFormat();
 
 		let valid = validTitle && validImages && validColours && validNames;
+
+		console.log(validTitle, validImages, validColours, validNames);
 
 		if ($$("#enforceClarity").checked)
 		{

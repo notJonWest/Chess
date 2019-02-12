@@ -175,7 +175,7 @@ let server = http.createServer((req, res) =>
 
 						EVEM.emit("progress", "Processed meta-data");
 
-						fs.readFile("./private/data/schemas.json", (err, data) =>
+						fs.readFile("./private/schemas/schemas.json", (err, data) =>
 						{
 							if (err)
 								throw err;
@@ -183,116 +183,124 @@ let server = http.createServer((req, res) =>
 							let schemas = JSON.parse(data);
 							schemas.push(schemaData.title);
 
-							fs.writeFile(`./private/data/schemas/${schemaData.title}.json`, JSON.stringify(newSchema, null, 4),
-								err =>
-								{
-									EVEM.emit("progress", "Saved schema meta-data to database");
-									fs.writeFile("./private/data/schemas.json", JSON.stringify(schemas, null, 4),
-										err =>
-										{
-											if (err)
-												throw err;
+							let schemaPath = `./private/schemas/${schemaData.title}`;
 
-											EVEM.emit("progress", "Added schema title to database");
-											let formNameToFileName = formName =>
-											{
-												/*
-												 * formName format should be team_rank_img
-												 */
-												let formNameArr = formName.split("_");
-												let team = formNameArr[0];
-												let fileName = newSchema.teams[team].name;
+							fs.mkdir(schemaPath, err =>
+							{
+								if (err)
+									throw err;
 
-												//remove team letter and trailing "Img" to get rank
-												let chessRank = formNameArr[1];
+                                fs.writeFile(`${schemaPath}/${schemaData.title}.json`, JSON.stringify(newSchema, null, 4),
+                                    err =>
+                                    {
+                                        EVEM.emit("progress", "Saved schema meta-data to database");
+                                        fs.writeFile("./private/schemas/schemas.json", JSON.stringify(schemas, null, 4),
+                                            err =>
+                                            {
+                                                if (err)
+                                                    throw err;
 
-												//Change rank to the name in schema
-												let rank = newSchema.teams[team].ranks[chessRank];
-												if (rank === undefined)
-													rank = newSchema.ranks[chessRank];
-												fileName += rank;
+                                                EVEM.emit("progress", "Added schema title to database");
+                                                let formNameToFileName = formName =>
+                                                {
+                                                    /*
+                                                     * formName format should be team_rank_img
+                                                     */
+                                                    let formNameArr = formName.split("_");
+                                                    let team = formNameArr[0];
+                                                    let fileName = newSchema.teams[team].name;
 
-												//Add extension
-												fileName += mimeToExt(files[formName].type);
+                                                    //remove team letter and trailing "Img" to get rank
+                                                    let chessRank = formNameArr[1];
 
-												return fileName;
-											};
+                                                    //Change rank to the name in schema
+                                                    let rank = newSchema.teams[team].ranks[chessRank];
+                                                    if (rank === undefined)
+                                                        rank = newSchema.ranks[chessRank];
+                                                    fileName += rank;
 
-											let uploadFiles = (flds, newDir, onDone, onEach = (err, fld, next) => {}) =>
-											{
-												if (flds.length > 0)
-												{
-													let fld = flds.shift();
-													let fileName = formNameToFileName(fld);
+                                                    //Add extension
+                                                    fileName += mimeToExt(files[formName].type);
 
-													let newPath = path.join(newDir, fileName);
-													let oldPath = files[fld].path;
-													fs.copyFile(oldPath, newPath, err =>
-													{
-														if (err)
-														{
-															if (err.code === "ENOENT")
-																fs.mkdir(newDir, {recursive: true}, err =>
-																{
-																	if (err)
-																		onDone(err);
-																	else
-																		fs.copyFile(oldPath, newPath, err =>
-																		{
-																			if (err)
-																				onDone(err);
-																			else
-																				fs.unlink(oldPath, err =>
-																				{
-																					if (err)
-																						onDone(err);
-																					else
-																					{
-																						onEach(err, fld, flds[0]);
-																						uploadFiles(flds, newDir, onDone);
-																					}
-																				});
-																		});
-																});
-															else
-																onDone(err);
-														}
-														else
-															fs.unlink(oldPath, err =>
-															{
-																if (err)
-																	onDone(err);
-																onEach(err, fld, flds[0]);
-																uploadFiles(flds, newDir, onDone);
-															});
-													});
-												}
-												else
-													onDone();
-											};
+                                                    return fileName;
+                                                };
 
-											uploadFiles(Object.keys(files), `./private/media/images/pieces/${schemaData.title}/`,
-												err =>
-												{
-													schemasInProcess.processing.splice(schemasInProcess.processing.indexOf(schemaData.title), 1);
-													if (err)
-														console.log(err);
-													else
-													{
-														schemasInProcess.done.push(schemaData.title);
-														EVEM.emit("progress", "Uploaded all files");
-														EVEM.emit("done", schemaData.title);
-													}
-												},
-												(err, fld, next) =>
-												{
-													if (err)
-														console.log(err);
-													else
-														EVEM.emit("progress", `uploaded ${fld}`);
-												});
-										});
-								});
+                                                let uploadFiles = (flds, newDir, onDone, onEach = (err, fld, next) => {}) =>
+                                                {
+                                                    if (flds.length > 0)
+                                                    {
+                                                        let fld = flds.shift();
+                                                        let fileName = formNameToFileName(fld);
+
+                                                        let newPath = path.join(newDir, fileName);
+                                                        let oldPath = files[fld].path;
+                                                        fs.copyFile(oldPath, newPath, err =>
+                                                        {
+                                                            if (err)
+                                                            {
+                                                                if (err.code === "ENOENT")
+                                                                    fs.mkdir(newDir, {recursive: true}, err =>
+                                                                    {
+                                                                        if (err)
+                                                                            onDone(err);
+                                                                        else
+                                                                            fs.copyFile(oldPath, newPath, err =>
+                                                                            {
+                                                                                if (err)
+                                                                                    onDone(err);
+                                                                                else
+                                                                                    fs.unlink(oldPath, err =>
+                                                                                    {
+                                                                                        if (err)
+                                                                                            onDone(err);
+                                                                                        else
+                                                                                        {
+                                                                                            onEach(err, fld, flds[0]);
+                                                                                            uploadFiles(flds, newDir, onDone);
+                                                                                        }
+                                                                                    });
+                                                                            });
+                                                                    });
+                                                                else
+                                                                    onDone(err);
+                                                            }
+                                                            else
+                                                                fs.unlink(oldPath, err =>
+                                                                {
+                                                                    if (err)
+                                                                        onDone(err);
+                                                                    onEach(err, fld, flds[0]);
+                                                                    uploadFiles(flds, newDir, onDone);
+                                                                });
+                                                        });
+                                                    }
+                                                    else
+                                                        onDone();
+                                                };
+
+                                                uploadFiles(Object.keys(files), `./private/schemas/${schemaData.title}/pieces`,
+                                                    err =>
+                                                    {
+                                                        schemasInProcess.processing.splice(schemasInProcess.processing.indexOf(schemaData.title), 1);
+                                                        if (err)
+                                                            console.log(err);
+                                                        else
+                                                        {
+                                                            schemasInProcess.done.push(schemaData.title);
+                                                            EVEM.emit("progress", "Uploaded all files");
+                                                            EVEM.emit("done", schemaData.title);
+                                                        }
+                                                    },
+                                                    (err, fld, next) =>
+                                                    {
+                                                        if (err)
+                                                            console.log(err);
+                                                        else
+                                                            EVEM.emit("progress", `uploaded ${fld}`);
+                                                    });
+                                            });
+                                    });
+							});
 						});
 					});
 				});

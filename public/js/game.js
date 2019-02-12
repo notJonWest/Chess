@@ -170,6 +170,7 @@ $(()=>
 		let sRank = schema.teams[team].ranks[rank];
 		if (sRank === undefined)
 			sRank = schema.ranks[rank];
+		console.log(schema, team, rank);
 		return sRank;
 	};
     let toSchema = piece =>
