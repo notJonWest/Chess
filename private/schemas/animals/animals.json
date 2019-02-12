@@ -1,0 +1,25 @@
+{
+    "title": "animals",
+    "ranks": {
+        "pawn": "Koala",
+        "rook": "Bear",
+        "knight": "Goat",
+        "bishop": "Pig",
+        "queen": "Tiger",
+        "king": "Lion"
+    },
+    "teams": {
+        "white": {
+            "name": "Earth",
+            "colour": "#800000",
+            "bgcolour": "#008000",
+            "ranks": {}
+        },
+        "black": {
+            "name": "Alien",
+            "colour": "#ff0080",
+            "bgcolour": "#400080",
+            "ranks": {}
+        }
+    }
+}
