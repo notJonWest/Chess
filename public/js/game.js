@@ -21,7 +21,7 @@ $(()=>
 					"name": skinName,
 					"skin": data
 				});
-			}).catch(() =>
+			}).catch(e =>
 			{
 				if (skinName === "default")
 				{
@@ -35,7 +35,7 @@ $(()=>
 				}
 			});
 		})
-		 .catch(() =>
+		 .catch(e =>
 		{
 			if (skinName === "default")
 			{

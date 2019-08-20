@@ -3,7 +3,6 @@ const http = require("http");
 const url = require("url");
 const path = require("path");
 const fs = require("fs");
-const qs = require("querystring");
 const formidable = require("formidable");
 const EventEmitter = require("events");
 const PORT = 9001;
@@ -106,7 +105,7 @@ let server = http.createServer((req, res) =>
 	if (filePath.ext === '')
 		if (filePath.base === "chess")
 			newUrlPath(ROOTDIR, `chess.html`);
-		else if (urlObj.pathname.substr(1, 7) === "skins")
+		else if (urlObj.pathname.substr(1, "skins".length) === "skins")
 		{
 			let ext = ".json";
 			let jsonFileName = `/${filePath.name}`; //Each skin has a corresponding json file of the same name within its directory
